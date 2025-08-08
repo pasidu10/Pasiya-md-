@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PASIYA-MD | WhatsApp Bot QR Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            background-color: #111;
+            color: #0f0;
+        }
+        #qr {
+            margin-top: 20px;
+            border: 4px solid #0f0;
+            padding: 10px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 PASIYA-MD WhatsApp Bot</h1>
+    <h2 id="status">Loading QR...</h2>
+    <div id="qr-container">
+        <img id="qr" src="" alt="QR Code will appear here">
+    </div>
+
+    <script>
+        async function fetchQR() {
+            const res = await fetch('/getQR');
+            const data = await res.json();
+
+            if (data.status === 'READY') {
+                document.getElementById('status').innerText = '✅ Bot is Ready!';
+                document.getElementById('qr').style.display = 'none';
+            } else {
+                document.getElementById('status').innerText = '📲 Scan the QR Code';
+                document.getElementById('qr').src = data.qr;
+                setTimeout(fetchQR, 3000);
+            }
+        }
+
+        fetchQR();
+    </script>
+</body>
+</html>
