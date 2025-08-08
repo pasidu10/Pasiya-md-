@@ -42,4 +42,55 @@ app.get('/getQR', (req, res) => {
 
 app.listen(port, () => {
     console.log(`🟢 PASIYA-MD BOT SERVER: http://localhost:${port}`);
+});  
+const express = require('express');
+const { makeWASocket, useSingleFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = require('@whiskeysockets/baileys');
+const fs = require('fs');
+
+const { state, saveState } = useSingleFileAuthState('./auth_info.json');
+const app = express();
+const port = 3000;
+
+let pairCode = null;
+
+async function startSocket() {
+    const { version } = await fetchLatestBaileysVersion();
+
+    const sock = makeWASocket({
+        version,
+        auth: {
+            creds: state.creds,
+            keys: makeCacheableSignalKeyStore(state.keys, fs.existsSync),
+        },
+        printQRInTerminal: false,
+    });
+
+    sock.ev.on('creds.update', saveState);
+
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect, isNewLogin } = update;
+        if (connection === 'close') {
+            console.log('Connection closed. Restarting...');
+            startSocket();
+        }
+    });
+
+    pairCode = await sock.requestPairingCode("PASIYA-MD-BOT");
+    console.log("✅ Pair Code:", pairCode);
+}
+
+startSocket();
+
+app.use(express.static('public'));
+
+app.get('/getPairCode', (req, res) => {
+    if (pairCode) {
+        res.json({ code: pairCode });
+    } else {
+        res.json({ code: 'Generating...' });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`🟢 PASIYA-MD Pair Code Server running: http://localhost:${port}`);
 });
