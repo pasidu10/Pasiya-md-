@@ -43,5 +43,46 @@
 
         fetchQR();
     </script>
+</body>  
+</html>  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PASIYA-MD | Pair Code Generator</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #0f0;
+            font-family: monospace;
+            text-align: center;
+            margin-top: 100px;
+        }
+        #code {
+            font-size: 40px;
+            margin-top: 20px;
+            border: 3px dashed #0f0;
+            display: inline-block;
+            padding: 20px;
+            border-radius: 10px;
+            background: #111;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 PASIYA-MD BOT</h1>
+    <h2>PAIR CODE GENERATOR</h2>
+    <div id="code">Loading...</div>
+
+    <script>
+        async function fetchCode() {
+            const res = await fetch('/getPairCode');
+            const data = await res.json();
+            document.getElementById('code').innerText = data.code;
+        }
+
+        fetchCode();
+        setInterval(fetchCode, 5000);
+    </script>
 </body>
 </html>
